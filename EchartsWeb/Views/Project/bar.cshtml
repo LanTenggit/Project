@@ -1,0 +1,117 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+    <div id="container" style="height: 100%"></div>
+    <script src="~/Scripts/Echarts/NewEchart/echarts.min.js"></script>
+
+
+    <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+option = null;
+app.title = '堆叠条形图';
+
+
+option = {
+  
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis:  {
+        type: 'value',
+        show: false,
+       
+    },
+    yAxis: {
+        type: 'category',
+        data: ['10 李四四','9 李四四','8 李四四','7 李四四','6 李四四','5 李四四','4 李四四','3 李四四','2 李四四','1 张三'],
+        axisLine: { show: false},
+        axisTick: {show: false},
+    },
+    series: [
+        {
+            name: '张三总业绩',
+            type: 'bar',
+            barWidth: 20,
+            itemStyle: {
+                    normal: {
+                        barBorderRadius: 40,
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                            offset: 0,
+                            color: '#2d3d69'
+                        }, {
+                            offset: 1,
+                            color: '#2b3c67'
+                        }]),
+                        areaStyle: {type: 'default'},
+                    },
+
+
+                },
+            // stack: '1',
+            barGap:'-100%',
+         
+            data: [920, 920, 920, 920, 920, 920, 920,920, 920, 920],
+             // barGap:'20%'
+        },
+        {
+            name: '张三',
+            type: 'bar',
+            barWidth: 20,
+                itemStyle: {
+                    normal: {
+                        barBorderRadius: 40,
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                            offset: 0,
+                            color: '#0a6253'
+                        }, {
+                            offset: 1,
+                            color: '#34b9a4'
+                        }]),
+                   
+                        areaStyle: {type: 'default'},
+                 label : {
+                    show: true, 
+                    position: 'right',
+                    formatter: function (params) {
+                      // console.log(params)//这里输出params所有参数 需要什么下面自己拼
+                        // return params.name + params.data;
+                       return "￥" + params.data;
+                    },
+                    
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                    },
+
+
+                },
+         
+            data: [400, 232, 301, 134, 506, 360, 840, 386, 298, 640],
+            
+        },
+       
+    ]
+};;
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+    </script>
+</body>
+</html>
+

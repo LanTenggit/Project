@@ -1,0 +1,293 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>bootstarp</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap/js/bootstrap.js"></script>
+    <script src="~/Scripts/bootstrap/js/bootstrap-table.min.js"></script>
+    <script src="~/Scripts/bootstrap/js/bootstrap-table-zh-CN.min.js"></script>
+    <link href="~/Scripts/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Scripts/bootstrap/css/bootstrap-table.min.css" rel="stylesheet" />
+    <script type="text/javascript">
+
+        $(function () {
+
+            $('#ArbetTable').bootstrapTable({
+                url: '/Project/bootstarp1',         //请求后台的URL（*）
+                method: 'post',                      //请求方式（*）
+                toolbar: '#toolbar',                //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                paginationPreText: '上一页',
+                paginationNextText: '下一页',
+                sortable: false,                     //是否启用排序
+                sortOrder: "asc",
+                queryParamsType: "limit",
+                queryParams: queryParams,
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                pageSize: 10,                       //每页的记录行数（*）
+                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                //search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                contentType: "application/x-www-form-urlencoded",
+                strictSearch: true,
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                clickToSelect: true,                //是否启用点击选中行
+                height: 550,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "no",                     //每一行的唯一标识，一般为主键列
+                showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                   //是否显示父子表
+
+                columns: [
+                    {
+                        field: 'checked',
+                        checkbox: true,
+                        title: '全选',
+                    },
+                {
+
+                    field: 'D_ID',
+                    title: 'ID',
+                    align: 'center'
+                },
+                {
+                    field: 'D_Adress',
+                    title: '设备地址',
+                    align: 'center'
+                },
+                {
+                    field: 'D_Name',
+                    title: '名称',
+                    searchFormatter: true,
+                    align: 'center'
+                },
+                {
+                    field: 'D_Monitor',
+                    title: '班长',
+                    //formatter: operateFormatter //自定义方法，添加操作按钮
+                    align: 'center'
+                },
+
+                 {
+                     field: 'D_Line',
+                     title: '线体',
+                     align: 'center'
+                 },
+                 {
+                     field: 'D_Yieds',
+                     title: '产量',
+                     align: 'center'
+                 },
+                 {
+                     field: 'D_Bednum',
+                     title: '不良数',
+                     align: 'center'
+                 },
+
+                {
+                    field: 'D_Power_Time',
+                    title: '压力时间',
+                    align: 'center'
+                    //formatter: operateFormatter //自定义方法，添加操作按钮
+                }
+                ,
+                {
+                    field: 'D_IP_adress',
+                    title: 'IP',
+                    align: 'center'
+                }
+               ,
+                {
+                    field: 'D_Creadte_Time',
+                    title: '时间',
+                    align: 'center'
+                }
+                ,
+                {
+                    field: 'D_Computer_Name',
+                    title: '电脑',
+                    align: 'center'
+                }
+                 ,
+                {
+                    field: 'D_MAC_adress',
+                    title: 'MAC',
+                    align: 'center'
+                }
+                ],
+                rowStyle: function (row, index) {
+                    var classesArr = ['success', 'info'];
+                    var strclass = "";
+                    if (index % 2 === 0) {//偶数行
+                        strclass = classesArr[0];
+                    } else {//奇数行
+                        strclass = classesArr[1];
+                    }
+                    return { classes: strclass };
+                },//隔行变色
+            });
+
+
+            ///导出
+            $("#btnExport").click(function () {
+                method1('ArbetTable')
+            });
+
+            var idTmr;
+            function getExplorer() {
+                var explorer = window.navigator.userAgent;
+                //ie
+                if (explorer.indexOf("MSIE") >= 0) {
+                    return 'ie';
+                }
+                    //firefox
+                else if (explorer.indexOf("Firefox") >= 0) {
+                    return 'Firefox';
+                }
+                    //Chrome
+                else if (explorer.indexOf("Chrome") >= 0) {
+                    return 'Chrome';
+                }
+                    //Opera
+                else if (explorer.indexOf("Opera") >= 0) {
+                    return 'Opera';
+                }
+                    //Safari
+                else if (explorer.indexOf("Safari") >= 0) {
+                    return 'Safari';
+                }
+            }
+            function method1(tableid) {//整个表格拷贝到EXCEL中
+                if (getExplorer() == 'ie') {
+                    var curTbl = document.getElementById(tableid);
+                    var oXL = new ActiveXObject("Excel.Application");
+
+                    //创建AX对象excel
+                    var oWB = oXL.Workbooks.Add();
+                    //获取workbook对象
+                    var xlsheet = oWB.Worksheets(1);
+                    //激活当前sheet
+                    var sel = document.body.createTextRange();
+                    sel.moveToElementText(curTbl);
+                    //把表格中的内容移到TextRange中
+                    sel.select;
+                    //全选TextRange中内容
+                    sel.execCommand("Copy");
+                    //复制TextRange中内容
+                    xlsheet.Paste();
+                    //粘贴到活动的EXCEL中
+                    oXL.Visible = true;
+                    //设置excel可见属性
+
+                    try {
+                        var fname = oXL.Application.GetSaveAsFilename("Excel.xls", "Excel Spreadsheets (*.xls), *.xls");
+                    } catch (e) {
+                        print("Nested catch caught " + e);
+                    } finally {
+                        oWB.SaveAs(fname);
+
+                        oWB.Close(savechanges = false);
+                        //xls.visible = false;
+                        oXL.Quit();
+                        oXL = null;
+                        //结束excel进程，退出完成
+                        //window.setInterval("Cleanup();",1);
+                        idTmr = window.setInterval("Cleanup();", 1);
+                    }
+                } else {
+                    tableToExcel('ArbetTable')
+                }
+            }
+            function Cleanup() {
+                window.clearInterval(idTmr);
+                CollectGarbage();
+            }
+
+
+            var tableToExcel = (function () {
+                var uri = 'data:application/vnd.ms-excel;base64,',
+                template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+                base64 = function (s) {
+                    return window.btoa(unescape(encodeURIComponent(s)))
+                },
+                // 下面这段函数作用是：将template中的变量替换为页面内容ctx获取到的值
+                format = function (s, c) {
+                    return s.replace(/{(\w+)}/g,
+                                    function (m, p) {
+                                        return c[p];
+                                    }
+                    )
+                };
+                return function (table, name) {
+                    if (!table.nodeType) {
+                        table = document.getElementById(table)
+                    }
+                    // 获取表单的名字和表单查询的内容
+                    var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML };
+                    // format()函数：通过格式操作使任意类型的数据转换成一个字符串
+                    // base64()：进行编码
+                    window.location.href = uri + base64(format(template, ctx))
+                }
+            })()
+
+
+
+
+            //查询
+            $("#btnQuery").on("click", function () {
+                $("#ArbetTable").bootstrapTable("refresh");
+
+            })
+
+        })
+
+        //向后台传输数据
+        function queryParams(params) {
+            var temp = {
+                limit: params.limit,   //页面大小
+                page: (params.offset / params.limit) + 1, //当前页码
+                name: $('#name').val()
+            };
+            return temp;
+
+        };
+
+
+
+
+    </script>
+
+
+
+</head>
+<body>
+    <div>
+        <div id="toolbar"></div>
+        <div>
+            <span>设备名称</span>
+            <input type="text" id="name" />
+            <span>创造时间</span>
+            <input type="text" id="C_time" />
+            <button id='btnQuery' type='button' class='btn btn-default'>
+                <span class='glyphicon glyphicon-export' aria-hidden='true'></span>查询
+            </button>
+            <button id='btnExport' type='button' class='btn btn-default'>
+                <span class='glyphicon glyphicon-export' aria-hidden='true'></span>导出
+            </button>
+        </div>
+        <table id="ArbetTable"></table>
+
+    </div>
+</body>
+</html>

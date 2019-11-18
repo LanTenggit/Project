@@ -1,0 +1,419 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/Echarts/NewEchart/echarts.min.js"></script>
+    @*<link href="~/Content/bootstrap.min.css" rel="stylesheet" />*@
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #top {
+            width: 100%;
+            /*height:50px;*/
+            border: 1px solid black;
+            overflow: hidden;
+        }
+
+        #top_be {
+            width: 200px;
+            border: 1px solid black;
+            /*margin-left:300px;*/
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        #content {
+            width: 95%;
+            /*height:800px;*/
+            border: 1px solid black;
+            margin-top: 30px;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        #content_top_left {
+            width: 40%;
+            height: 400px;
+            border: 1px solid black;
+            margin-top: 30px;
+            float: left;
+            margin-left: 50px;
+        }
+
+        #content_top_right {
+            width: 40%;
+            height: 400px;
+            border: 1px solid black;
+            margin-top: 30px;
+            float: right;
+            margin-right: 50px;
+        }
+
+        #c1 {
+            width: 100%;
+            background-color: darkgray;
+        }
+
+        #c2 {
+            width: 10%;
+            background-color: darkcyan;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+        }
+
+
+        #content_bottem {
+            width: 95%;
+            float: left;
+            border: 1px solid black;
+            margin: 0 auto;
+            margin-left: 30px;
+            margin-top: 20px;
+        }
+
+        #charmain {
+            border: 1px solid black;
+            margin: 0 auto;
+            width: 60%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+
+        #content_pie {
+            border: 1px solid black;
+            margin: 0 auto;
+            width: 80%;
+            height: 400px;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div>
+        <div id="top">
+            <h2>数字化线工装设备看板</h2>
+            <div id="top_be">
+                <a href="#" id="top_besuccess">BE制成段</a>
+
+                <a href="#" id="top_device">工装设备运行看板</a>
+            </div>
+            <div>
+
+
+            </div>
+        </div>
+
+        <div id="content">
+
+            <div id="content_top">
+                <div id="content_top_left">
+
+
+                    <div class="layui-progress layui-progress-big" lay-showpercent="true" id="c1">
+                        <div class="layui-progress-bar" lay-percent="10%" id="c2">10%</div>
+                    </div>
+
+                    <br>
+                    <button onclick="move()">加载</button>
+
+                </div>
+                <div id="content_top_right">
+
+                    <div id="content_pie">
+
+
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div id="content_bottem">
+                <div id="charmain">
+
+
+
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+
+        var myChart = echarts.init(document.getElementById('charmain'));
+
+        myChart.setOption({
+            title: {
+                text: '设备与产量'
+            },
+            tooltip: {},
+            legend: {
+                data:['产量','不良数']
+            },
+            xAxis: {
+                data: []
+            },
+          
+            yAxis: {},
+            series: [{
+                name: '产量',
+                type: 'bar',
+                data: []
+            },
+            {
+                name: '不良数',
+                type: 'bar',
+                data: []
+            },
+             {
+                 name: '不良数',
+                 type: 'line',
+                 data: []
+             }
+            ]
+        });
+
+        myChart.showLoading();    //数据加载完之前先显示一段简单的loading动画
+
+        var names=[];    //类别数组（实际用来盛放X轴坐标值）
+        var nums = [];    //销量数组（实际用来盛放Y坐标值）
+        var badnum = [];
+
+        $.ajax({
+            type : "post",
+            async : true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+            url : "indexs",    //请求发送到TestServlet处
+            data : {},
+            dataType : "json",        //返回数据形式为json
+            success: function (result) {
+                //alert(result.rows[0].D_Name)
+               // debugger
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                if (result) {
+                    for (var i = 0; i < result.total; i++) {
+                      
+                        names.push(result.rows[i].D_Name);    //挨个取出类别并填入类别数组
+                    }
+                    for (var i = 0; i < result.total; i++) {
+                        nums.push(result.rows[i].D_Yieds);    //挨个取出销量并填入销量数组\
+                        badnum.push(result.rows[i].D_Bednum);
+                    }
+                    myChart.hideLoading();    //隐藏加载动画
+                    myChart.setOption({        //加载数据图表
+                        xAxis: {
+                            data: names
+                        },
+
+                        toolbox: {
+                            show: true,
+                            orient: 'horizontal',
+                            showTitle: true,
+                            feature: {
+                                magicType: {
+                                    type: ['line', 'bar']
+                                },
+                                dataView: {
+                                    show: true,
+                                    title: '设备产量',
+                                    readOnly: false,
+                                    optionToContent: function (opt) {
+                                        var colName = "设备";
+                                        var typeName = "产量";
+                                        var dataview = opt.toolbox[0].feature.dataView;  //获取dataview
+                                        var table = '<div style="position:absolute;top: 5px;left: 0px;right: 0px;line-height: 1.4em;text-align:center;font-size:14px;">' + dataview.title + '</div>'
+                                        table += getTable(opt, colName, typeName);
+                                        return table;
+                                    }
+                                },
+                                saveAsImage: {
+                                    type: 'png',
+                                    show: true,
+                                    title: '保存为图片',
+                                },
+                                restore: { show: true }
+                            }
+                        },
+
+                        series: [{
+                            // 根据名字对应到相应的系列
+                            name: '产量',
+                            data: nums,
+                        },
+
+                        {
+                            name: '不良数',
+                            data: badnum
+
+                        }
+                        ,
+                        {
+                            name: '不良数',
+                            data: badnum
+
+                        }
+
+                        ]
+                    });
+
+                }
+
+            },
+            error : function(errorMsg) {
+                //请求失败时执行该函数
+                alert("图表请求数据失败!");
+                myChart.hideLoading();
+            }
+
+        })
+
+
+
+
+
+        //进度条
+
+        var width = 10;
+        function move() {
+            var id = document.getElementById("c2");  //返回对拥有指定 ID 的第一个对象的引用。
+
+            if (width == 10) {
+                var temp = setInterval(go, 100);   //每0.1秒执行一次go函数
+            }
+
+            function go() {
+                if (width >= 100)
+                    clearInterval(temp);     //停止setInterval
+                else {
+                    //adasda++;
+                    width++;
+                    id.style.width = width + '%';    //使进度条百分比增长
+                    id.innerHTML = width + '%';
+                }
+
+            }
+        }
+        //饼图
+        var mypie = echarts.init(document.getElementById('content_pie'));
+
+        // 指定图表的配置项和数据
+        optionpie = {
+            title: {
+                text: '某站点用户访问来源',       //大标题
+                subtext: '纯属虚构',                //类似于副标题
+                x: 'center'                 //标题位置   居中
+            },
+            tooltip: {
+                trigger: 'item',           //数据项图形触发，主要在散点图，饼图等无类目轴的图表中使用。
+                formatter: "{a} <br/>{b} : {c} ({d}%)"   //{a}（系列名称），{b}（数据项名称），{c}（数值）, {d}（百分比）用于鼠标悬浮时对应的显示格式和内容
+            },
+            legend: {                           //图例组件。
+                orient: 'vertical',             //图例列表的布局朝向
+                left: 'left',
+                data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+            },
+            series: [              //系列列表。每个系列通过 type 决定自己的图表类型
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius: '55%',
+                    center: ['50%', '60%'],
+                    data: [
+                        { value: 335, name: '直接访问' },
+                        { value: 310, name: '邮件营销' },
+                        { value: 234, name: '联盟广告' },
+                        { value: 135, name: '视频广告' },
+                        { value: 1548, name: '搜索引擎' }
+                    ],
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        }
+        mypie.setOption({
+            title: {
+                text: '某站点用户访问来源',       //大标题
+                subtext: '纯属虚构',                //类似于副标题
+                x: 'center'                 //标题位置   居中
+            },
+            tooltip: {
+                trigger: 'item',           //数据项图形触发，主要在散点图，饼图等无类目轴的图表中使用。
+                formatter: "{a} <br/>{b} : {c} ({d}%)"   //{a}（系列名称），{b}（数据项名称），{c}（数值）, {d}（百分比）用于鼠标悬浮时对应的显示格式和内容
+            },
+            legend: {                           //图例组件。
+                orient: 'vertical',             //图例列表的布局朝向
+                left: 'left',
+                data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+            },
+            series: {
+                name: '访问来源',
+                type: 'pie',
+                radius: '55%',
+                center: ['50%', '60%'],
+                data: [
+      { value: 335, name: '直接访问' },
+                        { value: 310, name: '邮件营销' },
+                        { value: 234, name: '联盟广告' },
+                        { value: 135, name: '视频广告' },
+                        { value: 1548, name: '搜索引擎' }
+
+
+
+
+
+                ],
+
+                        itemStyle: {
+                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+                        }
+            }
+
+
+        })
+        
+        
+     
+
+        //// 使用刚指定的配置项和数据显示图表。
+        //mypie.setOption(optionpie);
+
+
+
+    </script>
+
+
+
+
+
+
+
+</body>
+</html>
